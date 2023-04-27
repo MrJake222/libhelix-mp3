@@ -61,6 +61,9 @@
 #define	SYNCWORDH		0xff
 #define	SYNCWORDL		0xf0
 
+/* Max frames to check in consecutive check */
+#define MAX_FRAME_CHECK 10
+
 typedef struct _MP3DecInfo {
 	/* pointers to platform-specific data structures */
 	void *FrameHeaderPS;

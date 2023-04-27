@@ -121,32 +121,9 @@ int MP3FindSyncWord(unsigned char *buf, int nBytes)
 }
 
 /**************************************************************************************
- * Function:    MP3CheckSyncWord
- *
- * Description: check if buf points to valid sync word
- *
- * Inputs:      buffer to validate sync word
- *              max number of bytes to search in buffer
- *
- * Outputs:     none
- *
- * Return:      0 if the sync word is valid, -1 otherwise
- **************************************************************************************/
-int MP3CheckSyncWord(unsigned char *buf, int nBytes)
-{
-	if (nBytes < 2)
-		return -1;
-
-	if ( (buf[0] & SYNCWORDH) == SYNCWORDH && (buf[1] & SYNCWORDL) == SYNCWORDL )
-		return 0;
-
-	return -1;
-}
-
-/**************************************************************************************
  * Function:    MP3CheckSyncWordRepeated
  *
- * Description: locate the next byte-alinged sync word in the raw mp3 stream. Checks <?> consecutive
+ * Description: locate the next byte-alinged sync word in the raw mp3 stream. Checks <MAX_FRAME_CHECK> consecutive
  *              headers to be sure that's really a header.
  *
  * Inputs:      buffer to search for sync word
@@ -154,20 +131,24 @@ int MP3CheckSyncWord(unsigned char *buf, int nBytes)
  *
  * Outputs:     none
  *
- * Return:      offset to first sync word (bytes from start of buf)
- *              -1 if sync not found after searching nBytes
+ * Return:      number of matched frames, 0 (no frame found) or more
  **************************************************************************************/
 int MP3CheckSyncWordRepeated(HMP3Decoder hMP3Decoder, unsigned char *buf, int nBytes)
 {
-	const int MAX_FRAME_CHECK = 10;
-
 	int offset = 0;
 	int frame_idx;
+    MP3FrameInfo info;
 
 	for (frame_idx=0; frame_idx < MAX_FRAME_CHECK; frame_idx++) {
-		MP3FrameInfo info;
 
-		int buf_len = nBytes - offset;
+        int sync_word_offset = MP3FindSyncWord(buf + offset, nBytes - offset);
+        if (sync_word_offset < 0) {
+            // failed
+            return frame_idx;
+        }
+        offset += sync_word_offset;
+
+        int buf_len = nBytes - offset;
 		if (buf_len < 4) {
 			// no frame header
 			return frame_idx;
@@ -177,15 +158,15 @@ int MP3CheckSyncWordRepeated(HMP3Decoder hMP3Decoder, unsigned char *buf, int nB
 		int res = MP3GetNextFrameInfo(hMP3Decoder, &info, buf + offset);
 		if (res) {
 			// failed to decode header
-			return -1;
+			return frame_idx;
 		}
 
 		int frame_size = info.outputSamps * info.bitrate / 8 / info.samprate;
 		frame_size += CheckPadBit(hMP3Decoder);
 
-		offset += frame_size - 1;
+        offset += frame_size - 1;
 
-		// no more frames to check
+        // no more frames to check
 		if (offset >= nBytes)
 			return frame_idx + 1;
 	}

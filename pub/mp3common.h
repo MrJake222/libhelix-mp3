@@ -106,6 +106,7 @@ typedef struct _SFBandTable {
 /* decoder functions which must be implemented for each platform */
 MP3DecInfo *AllocateBuffers(void);
 void FreeBuffers(MP3DecInfo *mp3DecInfo);
+void ClearBuffers(MP3DecInfo *mp3DecInfo);
 int CheckPadBit(MP3DecInfo *mp3DecInfo);
 int UnpackFrameHeader(MP3DecInfo *mp3DecInfo, unsigned char *buf);
 int UnpackSideInfo(MP3DecInfo *mp3DecInfo, unsigned char *buf);

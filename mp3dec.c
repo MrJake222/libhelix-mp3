@@ -95,6 +95,27 @@ void MP3FreeDecoder(HMP3Decoder hMP3Decoder)
 }
 
 /**************************************************************************************
+ * Function:    MP3ClearBuffers
+ *
+ * Description: zero out the contents of MP3DecInfo buffers
+ *
+ * Inputs:      valid MP3 decoder instance pointer (HMP3Decoder)
+ *
+ * Outputs:     cleared buffers
+ *
+ * Return:      none
+ **************************************************************************************/
+void MP3ClearBuffers(HMP3Decoder hMP3Decoder)
+{
+	MP3DecInfo *mp3DecInfo = (MP3DecInfo *)hMP3Decoder;
+
+	if (!mp3DecInfo)
+		return;
+
+	ClearBuffers(mp3DecInfo);
+}
+
+/**************************************************************************************
  * Function:    MP3FindSyncWord
  *
  * Description: locate the next byte-alinged sync word in the raw mp3 stream

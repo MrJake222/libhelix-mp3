@@ -170,3 +170,25 @@ void FreeBuffers(MP3DecInfo *mp3DecInfo)
 
 	SAFE_FREE(mp3DecInfo);
 }
+
+/**************************************************************************************
+ * Function:    ClearBuffers
+ *
+ * Description: fill all buffers with 0's. Allows reusing buffers, without reallocation
+ *
+ * Inputs:      pointer to initialized MP3DecInfo structure
+ *
+ * Outputs:     cleared buffers
+ *
+ * Return:      none
+ **************************************************************************************/
+void ClearBuffers(MP3DecInfo *mp3DecInfo)
+{
+    ClearBuffer(mp3DecInfo->FrameHeaderPS,      sizeof(FrameHeader));
+    ClearBuffer(mp3DecInfo->SideInfoPS,         sizeof(SideInfo));
+    ClearBuffer(mp3DecInfo->ScaleFactorInfoPS,  sizeof(ScaleFactorInfo));
+    ClearBuffer(mp3DecInfo->HuffmanInfoPS,      sizeof(HuffmanInfo));
+    ClearBuffer(mp3DecInfo->DequantInfoPS,      sizeof(DequantInfo));
+    ClearBuffer(mp3DecInfo->IMDCTInfoPS,        sizeof(IMDCTInfo));
+    ClearBuffer(mp3DecInfo->SubbandInfoPS,      sizeof(SubbandInfo));
+}
